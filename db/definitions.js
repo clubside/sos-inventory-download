@@ -43,6 +43,15 @@
  * @property {String} refNumber
  * @property {Number} linenumber
  */
+/**
+ * @typedef {Object} SOSTransactionAddress
+ * @property {String} company
+ * @property {String} phone
+ * @property {String} email
+ * @property {String} addressName
+ * @property {String} addressType
+ * @property {SOSAddress} address
+ */
 const sosObjects = {
 	address: {
 		fields: [
@@ -99,6 +108,17 @@ const sosObjects = {
 			{ name: 'transactionType', type: 'string' },
 			{ name: 'refNumber', type: 'string' },
 			{ name: 'linenumber', type: 'integer' }
+		]
+	},
+	transactionAddress: {
+		description: 'Transaction addresses are used to represent the full address type in our system.',
+		fields: [
+			{ name: 'company', type: 'string' },
+			{ name: 'phone', type: 'string' },
+			{ name: 'email', type: 'string' },
+			{ name: 'addressName', type: 'string' },
+			{ name: 'addressType', type: 'string' },
+			{ name: 'address', type: 'object', objectType: 'address' }
 		]
 	}
 }
@@ -1102,7 +1122,7 @@ exports.tables = [
 	{
 		name: 'customers',
 		description: 'Represents a customer record used for sales, billing, shipping, pricing, tax configuration, and QuickBooks synchronization. Includes contact information, addresses, payment terms, pricing tier, tax settings, custom fields, and optional QuickBooks metadata such as sync status and stored payment token details.',
-		primary: true,
+		primary: false,
 		api: 'customer',
 		supportsFromTo: false,
 		supportsCreatedSinceUpdatedSince: true,
@@ -1442,79 +1462,112 @@ exports.tables = [
 	},
 	{
 		name: 'estimates',
+		description: 'An estimate is a quotation to a customer, or an offer to provide products or services at a specified price. The terms of an estimate (binding, non-binding, etc.) are set by your company policies.',
+		primary: true,
+		api: 'estimate',
+		supportsFromTo: true,
+		supportsCreatedSinceUpdatedSince: true,
+		sosObject: 'Estimate',
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Estimate',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-estimates-and-the-estimates-list',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. ID field is ignored on create requests.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The order number for this record. If you wish to use the automatic numbering capability on creation of a estimate, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'date',
-				type: 'string'
+				description: 'Transaction date.',
+				type: 'timestamp'
 			},
 			{
 				name: 'customer',
-				type: 'string'
+				description: 'Customer for this transaction.',
+				type: 'reference',
+				reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' }
 			},
 			{
 				name: 'billing',
-				type: 'string'
+				description: 'Billing address.',
+				type: 'object',
+				objectType: sosObjects.transactionAddress
 			},
 			{
 				name: 'shipping',
-				type: 'string'
+				description: 'Shipping address.',
+				type: 'object',
+				objectType: sosObjects.transactionAddress
 			},
 			{
 				name: 'salesRep',
-				type: 'string'
+				description: 'Sales representative for this transaction.',
+				type: 'reference',
+				reference: { field: 'salesRepId', property: 'id', sourceTable: 'salesReps', sourceField: 'id' }
 			},
 			{
 				name: 'channel',
-				type: 'string'
+				description: 'Channel (e.g., Catalog, Retail Store) for this transaction.',
+				type: 'reference',
+				reference: { field: 'channelId', property: 'id', sourceTable: 'channels', sourceField: 'id' }
 			},
 			{
 				name: 'department',
-				type: 'string'
+				description: 'Department for this transaction.',
+				type: 'reference',
+				reference: { field: 'departmentId', property: 'id', sourceTable: 'departments', sourceField: 'id' }
 			},
 			{
 				name: 'taxCode',
-				type: 'string'
+				description: 'Tax code for transaction.',
+				type: 'reference',
+				reference: { field: 'taxCodeId', property: 'id', sourceTable: 'taxCodes', sourceField: 'id' }
 			},
 			{
 				name: 'currency',
-				type: 'string'
+				description: 'Currency used for transaction, if multicurrency is enabled.',
+				type: 'reference'
 			},
 			{
 				name: 'transactionLocationQuickBooks',
+				description: 'QuickBooks location associated with this transaction, if applicable.',
 				type: 'string'
 			},
 			{
 				name: 'exchangeRate',
+				description: 'The exchange rate used for this transaction, if multicurrency is enabled.',
 				type: 'decimal'
 			},
 			{
 				name: 'customerMessage',
+				description: 'Customer message field.',
 				type: 'string'
 			},
 			{
 				name: 'comment',
+				description: 'This comment is not visible to the customer on SOS-generated PDFs and emails, but the comment does appear on customer statements generated in QuickBooks.',
 				type: 'string'
 			},
 			{
 				name: 'customerNotes',
+				description: 'Field for internal notes about customer.',
 				type: 'string'
 			},
 			{
@@ -1525,111 +1578,295 @@ exports.tables = [
 			},
 			{
 				name: 'depositAmount',
+				description: 'Deposit amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'subTotal',
-				type: 'decimal'
+				description: 'Subtotal for transaction.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'discountPercent',
+				description: 'Discount percentage field.',
 				type: 'decimal'
 			},
 			{
 				name: 'discountAmount',
+				description: 'Discount amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'taxPercent',
+				description: 'Tax percentage field.',
 				type: 'decimal'
 			},
 			{
 				name: 'taxAmount',
+				description: 'Tax amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'shippingAmount',
+				description: 'Shipping amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'total',
+				description: 'Transaction total.',
 				type: 'decimal'
 			},
 			{
 				name: 'discountTaxable',
-				type: 'integer'
+				description: 'True if discount is taxable, false if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'shippingTaxable',
-				type: 'integer'
+				description: 'True if shipping is taxable, false if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'status',
+				description: 'The current status of the transaction. Options are "Accepted", "Pending", "Closed", or "Rejected".',
 				type: 'string'
 			},
 			{
 				name: 'acceptedBy',
+				description: 'Name of customer representative who accepted this estimate.',
 				type: 'string'
 			},
 			{
 				name: 'acceptedDate',
-				type: 'string'
+				description: 'Date this estimate was accepted.',
+				type: 'timestamp'
 			},
 			{
 				name: 'expiration',
-				type: 'string'
+				description: 'Date this estimate expires.',
+				type: 'timestamp'
 			},
 			{
 				name: 'closed',
-				type: 'decimal'
+				description: 'True if transaction is closed, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'True if the summary parameter was set when this record was retrieved. False if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'hasSignature',
-				type: 'integer'
+				description: 'Reserved for future use.',
+				type: 'boolean'
 			},
 			{
 				name: 'forceSave',
-				type: 'integer'
+				description: 'If true, forces the record to save even if certain validation checks fail. Only used in specific workflows.',
+				type: 'boolean'
 			},
 			{
 				name: 'syncMessage',
-				type: 'string'
+				description: 'Reserved for future use.',
+				type: 'string',
+				readOnly: true
 			},
 			{
 				name: 'lastSync',
-				type: 'string'
+				description: 'The last successful sync time (GMT) for this estimate, if syncronizing with Quickbooks.',
+				type: 'timestamp',
+				readOnly: true
 			},
 			{
 				name: 'lines',
-				type: 'string'
-			},
-			{
-				name: 'customerId',
-				type: 'integer'
-			},
-			{
-				name: 'salesRepId',
-				type: 'integer'
-			},
-			{
-				name: 'channelId',
-				type: 'integer'
-			},
-			{
-				name: 'departmentId',
-				type: 'integer'
-			},
-			{
-				name: 'taxCodeId',
-				type: 'integer'
+				description: 'The lines for the estimate. See object structure below.',
+				type: 'array',
+				sidecar: {
+					table: 'estimateItems',
+					fields: [
+						{
+							name: 'id',
+							description: 'The unique identifier for this estimate line item. ID field is ignored on create requests.',
+							type: 'integer',
+							source: 'object',
+							property: 'id'
+						},
+						{
+							name: 'linenumber',
+							description: 'The line number for this line on the estimate transaction.',
+							type: 'integer',
+							source: 'object',
+							property: 'linenumber'
+						},
+						{
+							name: 'item',
+							description: 'The item this line represents.',
+							type: 'reference',
+							reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' },
+							source: 'object',
+							property: 'item'
+						},
+						{
+							name: 'class',
+							description: 'The class for this line.',
+							type: 'reference',
+							reference: { field: 'classId', property: 'id', sourceTable: 'classes', sourceField: 'id' },
+							source: 'object',
+							property: 'class'
+						},
+						{
+							name: 'job',
+							description: 'The job for this line, if enabled.',
+							type: 'reference',
+							reference: { field: 'jobId', property: 'id', sourceTable: 'jobs', sourceField: 'id' },
+							source: 'object',
+							property: 'job'
+						},
+						{
+							name: 'workcenter',
+							description: 'The related work center for the job.',
+							type: 'reference',
+							reference: { field: 'workCenterId', property: 'id', sourceTable: 'workCenters', sourceField: 'id' },
+							source: 'object',
+							property: 'workcenter'
+						},
+						{
+							name: 'worker',
+							description: 'The worker assigned to this line.',
+							type: 'reference',
+							reference: { field: 'workerId', property: 'id', sourceTable: 'workers', sourceField: 'id' },
+							source: 'object',
+							property: 'worker'
+						},
+						{
+							name: 'tax',
+							description: 'The tax information for this line, if enabled.',
+							type: 'object',
+							source: 'object',
+							property: 'tax'
+						},
+						{
+							name: 'linkedTransaction',
+							description: 'The transaction linked to this line.',
+							type: 'object',
+							objectType: sosObjects.transaction,
+							source: 'object',
+							property: 'linkedTransaction'
+						},
+						{
+							name: 'description',
+							description: 'The item description.',
+							type: 'string',
+							source: 'object',
+							property: 'description'
+						},
+						{
+							name: 'quantity',
+							description: 'The quantity for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'quantity'
+						},
+						{
+							name: 'weight',
+							description: 'The weight of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'weight',
+							readOnly: true
+						},
+						{
+							name: 'volume',
+							description: 'The volume of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'volume',
+							readOnly: true
+						},
+						{
+							name: 'weightunit',
+							description: 'The unit for the item\'s weight value.',
+							type: 'string',
+							source: 'object',
+							property: 'weightunit',
+							readOnly: true
+						},
+						{
+							name: 'volumeunit',
+							description: 'The unit for the volume value.',
+							type: 'string',
+							source: 'object',
+							property: 'volumeunit',
+							readOnly: true
+						},
+						{
+							name: 'unitprice',
+							description: 'The unit price for this item. Must be above the item’s minimum price, if set.',
+							type: 'decimal',
+							source: 'object',
+							property: 'unitprice',
+							readOnly: true
+						},
+						{
+							name: 'amount',
+							description: 'The sales amount for this line item. The amount must equal the quantity multiplied by the unit price.',
+							type: 'decimal',
+							source: 'object',
+							property: 'amount',
+							readOnly: true
+						},
+						{
+							name: 'cost',
+							description: 'The cost for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'cost',
+							readOnly: true
+						},
+						{
+							name: 'margin',
+							description: 'The margin for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'margin',
+							readOnly: true
+						},
+						{
+							name: 'listprice',
+							description: 'The list price for this item.',
+							type: 'decimal',
+							source: 'object',
+							property: 'listprice',
+							readOnly: true
+						},
+						{
+							name: 'percentdiscount',
+							description: 'The discount percentage applied to this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'percentdiscount',
+							readOnly: true
+						},
+						{
+							name: 'uom',
+							description: 'The unit of measure for this line.',
+							type: 'reference',
+							reference: { field: 'unitsOfMeasureId', property: 'id', sourceTable: 'unitsOfMeasure', sourceField: 'id' },
+							source: 'object',
+							property: 'uom'
+						}
+					],
+					primaryKey: ['id']
+				}
 			}
 		],
 		primaryKey: ['id']
