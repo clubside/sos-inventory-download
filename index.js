@@ -5,47 +5,6 @@ const createTable = require('./db/create-table.js')
 const insertRow = require('./db/insert-row.js')
 const { tables } = require('./db/definitions.js')
 
-const testDatabases = {
-	sqlite: {
-		engine: 'sqlite',
-		filename: './db/wdm.db'
-	},
-	mariadb: {
-		engine: 'mariadb',
-		host: 'localhost',
-		port: 3306,
-		user: 'wdm',
-		password: 'FuckSh!tC*nt69',
-		database: 'wdm'
-	},
-	postgres: {
-		engine: 'postgres',
-		host: '192.168.40.204',
-		port: 5432,
-		user: 'cossocial',
-		password: 'bn6hYr%j4s#5QCG',
-		database: 'wdm'
-	},
-	mssql: {
-		engine: 'mssql',
-		server: 'CLUBDEVSRV',
-		port: 1433,
-		authentication: {
-			type: 'default',
-			options: {
-				userName: 'sa',
-				password: 'FuckSh!tC*nt69'
-			}
-		},
-		options: {
-			database: 'wdm',
-			encrypt: true,
-			trustServerCertificate: true,
-			enableArithAbort: true
-		}
-	}
-}
-
 async function sosApi(url, authorization, retries = 5) {
 	console.log(url)
 	for (let attempt = 1; attempt <= retries; attempt++) {
@@ -252,20 +211,4 @@ async function downloadSOS(params) {
 	return { ok: true }
 }
 
-// Temporary standalone run
-async function run() {
-	const result = await downloadSOS({
-		database: testDatabases.sqlite,
-		sosAuthorization: 'Bearer lUJPKG5uCJPHBsm9AjZWWZ9GY4Cd5b5mU7ELbnSz3oSFlqIi0mvZT-G1G-oLQqhRiYYqKV8WcT5FR5K9YokMuX0eTNknn45AZCcsRZH1u5ulGa6Pq45AL0NFY7gxCY3sNQcouiXN1jMpmEieCRomxiw5ATJo4YIZaQHcDN4ZHr2Ktgghwsnrj0Vpd2QiNqQ3F03WuNcMMoCALu9W-oLA0cN_1RWqwTdQYjWrO052uCX9_z_Egu7wWTlMk8MwOrVPfeKn1YjoTDQx1e_cBfXrgEg-1lG4Vy4RJ0uU3enmwVpOBmAV',
-		retries: 5
-	})
-
-	if (!result.ok) {
-		console.error('downloadSOS failed:', result.error)
-		process.exitCode = 1
-	} else {
-		console.log('downloadSOS completed successfully')
-	}
-}
-
-run()
+module.exports = downloadSOS
