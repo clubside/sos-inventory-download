@@ -2460,7 +2460,7 @@ exports.tables = [
 	{
 		name: 'itemReceipts',
 		description: 'Items are received into inventory by creating item receipts.',
-		primary: true,
+		primary: false,
 		api: {
 			endpoint: '/api/v2/itemreceipt',
 			results: [
@@ -3427,60 +3427,134 @@ exports.tables = [
 	},
 	{
 		name: 'jobs',
+		description: 'Jobs, available on the Pro Plan of SOS Inventory, provide a convenient way to organize groups of transactions. Each job--and even each stage of a job--can have its own profit-and-loss statement, showing precisely how much money was made or lost on a given set',
+		primary: true,
+		api: {
+			endpoint: '/api/v2/job',
+			results: [
+				{
+					name: 'count',
+					description: 'The number of results returned in this query.',
+					type: 'integer'
+				},
+				{
+					name: 'totalCount',
+					description: 'The total number of records that match the filters of this query.',
+					type: 'integer'
+				},
+				{
+					name: 'data',
+					description: 'An array of invoice objects.',
+					type: 'array'
+				},
+				{
+					name: 'status',
+					description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+					type: 'string'
+				},
+				{
+					name: 'message',
+					description: 'A descriptive message indicating why the query was unsuccessful.',
+					type: 'string'
+				}
+			],
+			arguments: [
+				{
+					name: 'start',
+					description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+					type: 'integer'
+				},
+				{
+					name: 'maxresults',
+					description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+					type: 'integer'
+				},
+				{
+					name: 'query',
+					description: 'This parameter will filter the results by matches of the string on the following fields: number, comment, customerPO, or customer name.',
+					type: 'string'
+				},
+				{
+					name: 'archived',
+					description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+					type: 'string'
+				},
+				{
+					name: 'status',
+					description: 'Filters the result by whether the transaction is open or closed.',
+					type: 'string'
+				},
+				{
+					name: 'createdsince/updatedsince',
+					description: 'Filters transactions created or updated since a specified date/time.',
+					type: 'timestamp'
+				}
+			]
+		},
+		sosObject: 'Job',
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Job',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-jobs',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. Must not be provided on create transactions.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'name',
+				description: 'The name for this job.',
 				type: 'string'
 			},
 			{
 				name: 'number',
-				type: 'string'
-			},
-			{
-				name: 'date',
+				description: 'The job number for this record. If you wish to use the automatic numbering capability on the creation of a job, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'description',
+				description: 'The description for this job.',
 				type: 'string'
 			},
 			{
 				name: 'closed',
-				type: 'integer'
+				description: 'True if the job is closed, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'archived',
-				type: 'integer'
-			},
-			{
-				name: 'location',
-				type: 'string'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'customer',
-				type: 'string'
+				description: 'Customer for this job.',
+				type: 'reference',
+				reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' }
 			},
 			{
 				name: 'address',
-				type: 'string'
+				description: 'The customer’s shipping address for this job.',
+				type: 'object',
+				objectType: sosObjects.address
 			},
 			{
 				name: 'workcenters',
-				type: 'string'
+				description: 'The list of work centers for this job. The sequence indicates the order the job moves through the work centers. If creating a job, the Finished Goods work center will always be added as the last work center for you.',
+				type: 'array'
 			},
 			{
 				name: 'customFields',
