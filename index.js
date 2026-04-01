@@ -5,12 +5,12 @@ const createTable = require('./db/create-table.js')
 const insertRow = require('./db/insert-row.js')
 const { tables } = require('./db/definitions.js')
 
-async function sosApi(url, authorization, retries = 5) {
+async function sosApi(url, method, authorization, retries = 5) {
 	console.log(url)
 	for (let attempt = 1; attempt <= retries; attempt++) {
 		try {
 			const res = await fetch(url, {
-				method: 'GET',
+				method,
 				headers: {
 					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
 					Accept: '*/*',
@@ -49,7 +49,8 @@ async function downloadTable(params, engine, table) {
 
 	while (true) {
 		const result = await sosApi(
-        `https://api.sosinventory.com${table.api.endpoint}?start=${offset}&maxresults=200`,
+        `https://api.sosinventory.com${table.api.query.endpoint}?start=${offset}&maxresults=200`,
+        table.api.query.method,
         params.sosAuthorization,
         retries
 		)

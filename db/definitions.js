@@ -157,13 +157,41 @@ const sosObjects = {
  * @property {SOSSidecar} [sidecar] - sidecar table for this field
  */
 /**
+ * @typedef {Object} SOSAPIResult
+ * @property {String} name - name of the result
+ * @property {String} description - description of the result
+ * @property {String} type - datatype of the result
+ */
+/**
+ * @typedef {Object} SOSAPIParameter
+ * @property {String} name - name of the parameter
+ * @property {String} description - description of the parameter
+ * @property {String} type - datatype of the parameter
+ */
+/**
+ * @typedef {Object} SOSAPIEndpoint
+ * @property {String} endpoint - name of the endpoint
+ * @property {String} description - description of the endpoint
+ * @property {("POST"|"GET"|"PUT"|"DELETE"")} method - API method
+ * @property {SOSAPIResult[]} results - results of the API endpoint
+ * @property {SOSAPIParameter[]} parameters - parameters of the API endpoint
+ */
+/**
+ * @typedef {Object} SOSAPI
+ * @property {SOSAPIEndpoint} [create] - create endpoint definition
+ * @property {SOSAPIEndpoint} [query] - create endpoint definition
+ * @property {SOSAPIEndpoint} [read] - read endpoint definition
+ * @property {SOSAPIEndpoint} [update] - update endpoint definition
+ * @property {SOSAPIEndpoint} [delete] - delete endpoint definition
+ */
+/**
  * @typedef {Object} SOSTable
  * @property {String} name - name of the table
  * @property {String} description - description of the table
  * @property {Boolean} [primary] - whether the table should be grouped as part of SOS Inventory's Primary objects
  * @property {Boolean} [reference] - whether the table should be grouped as part of SOS Inventory's Reference objects
  * @property {Boolean} [support] - whether the table should be grouped as part of SOS Inventory's Support objects
- * @property {String} [api] - SOS Inventory API endpoint
+ * @property {SOSAPI} [api] - SOS Inventory API definition
  * @property {Boolean} [supportsFromTo] - whether the API supports from and to parameters
  * @property {Boolean} [supportsCreatedSinceUpdatedSince] - whether the API supports createdsince and updatedsince parameters
  * @property {String} [sosObject] - name of the SOS Inventory API object
@@ -3428,7 +3456,7 @@ exports.tables = [
 	{
 		name: 'jobs',
 		description: 'Jobs, available on the Pro Plan of SOS Inventory, provide a convenient way to organize groups of transactions. Each job--and even each stage of a job--can have its own profit-and-loss statement, showing precisely how much money was made or lost on a given set',
-		primary: true,
+		primary: false,
 		api: {
 			endpoint: '/api/v2/job',
 			results: [
@@ -3684,48 +3712,131 @@ exports.tables = [
 	},
 	{
 		name: 'lots',
+		description: 'Lot tracking is used to track batches or groups of a specific item.',
+		primary: true,
+		api: {
+			query: {
+				endpoint: '/api/v2/lot',
+				description: 'Returns a list of lot objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, description, or item name.',
+						type: 'string'
+					},
+					{
+						name: 'status',
+						description: 'Filters results by whether the transaction is expired or recalled.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'location',
+						description: 'This parameter will cause the inventory quantity values to reflect the lot totals at this location.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosObject: 'Lots',
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Lot',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-lots',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. Must not be provided on create transactions.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The lot identifier.',
 				type: 'string'
 			},
 			{
 				name: 'item',
-				type: 'string'
+				description: 'The item associated with this lot.',
+				type: 'reference',
+				reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' }
 			},
 			{
 				name: 'description',
+				description: 'Description of this lot.',
 				type: 'string'
 			},
 			{
 				name: 'expiration',
-				type: 'string'
+				description: 'True if lot has expired, false if not.',
+				type: 'timestamp'
 			},
 			{
 				name: 'recalled',
-				type: 'integer'
+				description: 'True if lot has been recalled, false if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'expired',
-				type: 'integer'
-			},
-			{
-				name: 'location',
-				type: 'string'
+				description: 'Has this lot expired?',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'customFields',
@@ -3735,19 +3846,18 @@ exports.tables = [
 			},
 			{
 				name: 'onHand',
+				description: 'Quantity of this lot currently in inventory.',
 				type: 'decimal'
 			},
 			{
 				name: 'available',
+				description: 'Quantity of this lot currently available for sale.',
 				type: 'decimal'
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
-			},
-			{
-				name: 'itemId',
-				type: 'integer'
+				description: 'True if the summary parameter was set when this record was retrieved. False if not.',
+				type: 'boolean'
 			}
 		],
 		primaryKey: ['id']
