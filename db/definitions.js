@@ -2490,66 +2490,70 @@ exports.tables = [
 		description: 'Items are received into inventory by creating item receipts.',
 		primary: false,
 		api: {
-			endpoint: '/api/v2/itemreceipt',
-			results: [
-				{
-					name: 'count',
-					description: 'The number of results returned in this query.',
-					type: 'integer'
-				},
-				{
-					name: 'totalCount',
-					description: 'The total number of records that match the filters of this query.',
-					type: 'integer'
-				},
-				{
-					name: 'data',
-					description: 'An array of invoice objects.',
-					type: 'array'
-				},
-				{
-					name: 'status',
-					description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
-					type: 'string'
-				},
-				{
-					name: 'message',
-					description: 'A descriptive message indicating why the query was unsuccessful.',
-					type: 'string'
-				}
-			],
-			arguments: [
-				{
-					name: 'start',
-					description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
-					type: 'integer'
-				},
-				{
-					name: 'maxresults',
-					description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
-					type: 'integer'
-				},
-				{
-					name: 'query',
-					description: 'This parameter will filter the results by matches of the string on the following fields: number, comment, customerPO, or customer name.',
-					type: 'string'
-				},
-				{
-					name: 'archived',
-					description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
-					type: 'string'
-				},
-				{
-					name: 'location',
-					description: 'Filters transactions according to the name of the location.',
-					type: 'string'
-				},
-				{
-					name: 'createdsince/updatedsince',
-					description: 'Filters transactions created or updated since a specified date/time.',
-					type: 'timestamp'
-				}
-			]
+			query: {
+				endpoint: '/api/v2/itemreceipt',
+				description: 'Returns a list of item receipt objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, comment, customerPO, or customer name.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'location',
+						description: 'Filters transactions according to the name of the location.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
 		},
 		sosObject: 'Item Receipt',
 		sosApiUrl: 'https://developer.sosinventory.com/apidoc/ItemReceipt',
@@ -3713,7 +3717,7 @@ exports.tables = [
 	{
 		name: 'lots',
 		description: 'Lot tracking is used to track batches or groups of a specific item.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/lot',
@@ -3785,7 +3789,7 @@ exports.tables = [
 				]
 			}
 		},
-		sosObject: 'Lots',
+		sosObject: 'Lot',
 		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Lot',
 		sosHelpUrl: 'https://help.sosinventory.com/v8-lots',
 		fields: [
@@ -3941,72 +3945,186 @@ exports.tables = [
 	},
 	{
 		name: 'pickTickets',
+		description: 'A pick ticket gives instructions to your warehouse to pull certain items, quantities, serial numbers, lot numbers, etc. Pick tickets do NOT remove items from inventory.',
+		primary: false,
+		api: {
+			query: {
+				endpoint: '/api/v2/pickticket',
+				description: 'Returns a list of pick ticket objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'summary',
+						description: 'If this parameter is present (the value doesn\'t matter, and doesn\'t need to be specified), only the summary attributes of the pick ticket will be returned.',
+						type: 'string'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, comment, customer name, or location name.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'from/to',
+						description: 'Returns records based on the beginning and ending transaction dates specified. Both parameters are optional. Using only one parameter allows filtering in one direction. Example: from=2019-09-01T00:00:00&to=2019-09-10T00:00:00',
+						type: 'timestamp'
+					},
+					{
+						name: 'location',
+						description: 'Filters transactions according to the name of the location.',
+						type: 'string'
+					},
+					{
+						name: 'channel',
+						description: 'The name of a channel to filter the transactions.',
+						type: 'string'
+					},
+					{
+						name: 'status',
+						description: 'This will filter the results by closed or open status.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosObject: 'Pick Ticket',
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/PickTicket',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-pick-tickets-and-pick-tickets-list',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. ID field is ignored on create requests.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The order number for this record. If you wish to use the automatic numbering capability on creation of a pick ticket, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'date',
-				type: 'string'
+				description: 'Transaction date.',
+				type: 'timestamp'
 			},
 			{
 				name: 'customer',
-				type: 'string'
+				description: 'Customer for this transaction.',
+				type: 'reference',
+				reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' }
 			},
 			{
 				name: 'location',
-				type: 'string'
+				description: 'Location for this transaction.',
+				type: 'reference',
+				reference: { field: 'locationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'channel',
-				type: 'string'
+				description: 'Channel (e.g., Catalog, Retail Store) for this transaction.',
+				type: 'reference',
+				reference: { field: 'channelId', property: 'id', sourceTable: 'channels', sourceField: 'id' }
 			},
 			{
 				name: 'priority',
-				type: 'string'
+				description: 'The degree of importance or urgency assigned to this transaction.',
+				type: 'reference',
+				reference: { field: 'priorityId', property: 'id', sourceTable: 'priorities', sourceField: 'id' }
 			},
 			{
 				name: 'assignedToUser',
-				type: 'string'
+				description: 'User to whom this transaction is assigned.',
+				type: 'reference',
+				reference: { field: 'assignedToUserId', property: 'id', sourceTable: 'users', sourceField: 'id' }
 			},
 			{
 				name: 'shippingMethod',
-				type: 'string'
+				description: 'Shipping method for this transaction.',
+				type: 'reference',
+				reference: { field: 'shipMethodId', property: 'id', sourceTable: 'shipMethods', sourceField: 'id' }
 			},
 			{
 				name: 'trackingNumber',
+				description: 'Shipping carrier\'s tracking number.',
 				type: 'string'
 			},
 			{
 				name: 'linkedTransaction',
-				type: 'string'
+				description: 'The transaction linked to this pick ticket.',
+				type: 'object',
+				objectType: sosObjects.transaction
 			},
 			{
 				name: 'comment',
+				description: 'The company’s internal comment about this transaction. This comment is not visible to the customer.',
 				type: 'string'
 			},
 			{
 				name: 'customerNotes',
+				description: 'Field for internal notes about customer.',
 				type: 'string'
 			},
 			{
 				name: 'closed',
-				type: 'integer'
+				description: '',
+				type: 'boolean'
 			},
 			{
 				name: 'customFields',
@@ -4016,51 +4134,156 @@ exports.tables = [
 			},
 			{
 				name: 'pickBy',
-				type: 'string'
+				description: 'Date by which this order should be picked.',
+				type: 'timestamp'
 			},
 			{
 				name: 'total',
-				type: 'decimal'
+				description: 'Transaction total.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'True if the summary parameter was set when this record was retrieved. False if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'hasSignature',
-				type: 'integer'
+				description: 'Reserved for future use.',
+				type: 'boolean'
 			},
 			{
 				name: 'lines',
-				type: 'string'
-			},
-			{
-				name: 'customerId',
-				type: 'integer'
-			},
-			{
-				name: 'locationId',
-				type: 'integer'
-			},
-			{
-				name: 'channelId',
-				type: 'integer'
-			},
-			{
-				name: 'priorityId',
-				type: 'integer'
-			},
-			{
-				name: 'assignedToUserId',
-				type: 'integer'
-			},
-			{
-				name: 'shippingMethodId',
-				type: 'integer'
+				description: 'The lines for the pick ticket. See object structure below.',
+				type: 'array',
+				sidecar: {
+					table: 'pickTicketItems',
+					fields: [
+						{
+							name: 'id',
+							description: 'The unique identifier for this line item. ID field is ignored on create requests.',
+							type: 'integer',
+							source: 'object',
+							property: 'id'
+						},
+						{
+							name: 'linenumber',
+							description: 'The line number for this line on the pick ticket transaction.',
+							type: 'integer',
+							source: 'object',
+							property: 'linenumber'
+						},
+						{
+							name: 'item',
+							description: 'The item this line represents.',
+							type: 'reference',
+							reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' },
+							source: 'object',
+							property: 'item'
+						},
+						{
+							name: 'weight',
+							description: 'The weight of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'weight',
+							readOnly: true
+						},
+						{
+							name: 'volume',
+							description: 'The volume of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'volume',
+							readOnly: true
+						},
+						{
+							name: 'weightunit',
+							description: 'The unit for the item\'s weight value.',
+							type: 'string',
+							source: 'object',
+							property: 'weightunit',
+							readOnly: true
+						},
+						{
+							name: 'volumeunit',
+							description: 'The unit for the volume value.',
+							type: 'string',
+							source: 'object',
+							property: 'volumeunit',
+							readOnly: true
+						},
+						{
+							name: 'job',
+							description: 'The job for this line, if enabled.',
+							type: 'reference',
+							reference: { field: 'jobId', property: 'id', sourceTable: 'jobs', sourceField: 'id' },
+							source: 'object',
+							property: 'job'
+						},
+						{
+							name: 'workcenter',
+							description: 'The related work center for the job.',
+							type: 'reference',
+							reference: { field: 'workCenterId', property: 'id', sourceTable: 'workCenters', sourceField: 'id' },
+							source: 'object',
+							property: 'workcenter'
+						},
+						{
+							name: 'description',
+							description: 'The item description.',
+							type: 'string',
+							source: 'object',
+							property: 'description'
+						},
+						{
+							name: 'quantity',
+							description: 'The quantity of this item for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'quantity'
+						},
+						{
+							name: 'uom',
+							description: 'The unit of measure for this line.',
+							type: 'reference',
+							reference: { field: 'unitsOfMeasureId', property: 'id', sourceTable: 'unitsOfMeasure', sourceField: 'id' },
+							source: 'object',
+							property: 'uom'
+						},
+						{
+							name: 'lot',
+							description: 'The lot used for this line item.',
+							type: 'reference',
+							reference: { field: 'lotId', property: 'id', sourceTable: 'lots', sourceField: 'id' },
+							source: 'object',
+							property: 'lot'
+						},
+						{
+							name: 'bin',
+							description: 'The bin used for this line item.',
+							type: 'reference',
+							reference: { field: 'binId', property: 'id', sourceTable: 'bins', sourceField: 'id' },
+							source: 'object',
+							property: 'bin'
+						},
+						{
+							name: 'serials',
+							description: 'Serial number references for this line item.',
+							type: 'array',
+							source: 'object',
+							property: 'serials'
+						}
+					],
+					primaryKey: ['id']
+				}
 			}
 		],
 		primaryKey: ['id']
