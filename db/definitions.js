@@ -1463,7 +1463,7 @@ exports.tables = [
 	{
 		name: 'estimates',
 		description: 'An estimate is a quotation to a customer, or an offer to provide products or services at a specified price. The terms of an estimate (binding, non-binding, etc.) are set by your company policies.',
-		primary: true,
+		primary: false,
 		api: {
 			endpoint: '/api/v2/estimate',
 			results: [
@@ -1948,7 +1948,7 @@ exports.tables = [
 	{
 		name: 'invoices',
 		description: 'An invoice is a bill to a customer requesting that they pay you a certain amount of money by a certain date.',
-		primary: true,
+		primary: false,
 		api: {
 			endpoint: '/api/v2/invoice',
 			results: [
@@ -2459,84 +2459,176 @@ exports.tables = [
 	},
 	{
 		name: 'itemReceipts',
+		description: 'Items are received into inventory by creating item receipts.',
+		primary: true,
+		api: {
+			endpoint: '/api/v2/itemreceipt',
+			results: [
+				{
+					name: 'count',
+					description: 'The number of results returned in this query.',
+					type: 'integer'
+				},
+				{
+					name: 'totalCount',
+					description: 'The total number of records that match the filters of this query.',
+					type: 'integer'
+				},
+				{
+					name: 'data',
+					description: 'An array of invoice objects.',
+					type: 'array'
+				},
+				{
+					name: 'status',
+					description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+					type: 'string'
+				},
+				{
+					name: 'message',
+					description: 'A descriptive message indicating why the query was unsuccessful.',
+					type: 'string'
+				}
+			],
+			arguments: [
+				{
+					name: 'start',
+					description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+					type: 'integer'
+				},
+				{
+					name: 'maxresults',
+					description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+					type: 'integer'
+				},
+				{
+					name: 'query',
+					description: 'This parameter will filter the results by matches of the string on the following fields: number, comment, customerPO, or customer name.',
+					type: 'string'
+				},
+				{
+					name: 'archived',
+					description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+					type: 'string'
+				},
+				{
+					name: 'location',
+					description: 'Filters transactions according to the name of the location.',
+					type: 'string'
+				},
+				{
+					name: 'createdsince/updatedsince',
+					description: 'Filters transactions created or updated since a specified date/time.',
+					type: 'timestamp'
+				}
+			]
+		},
+		sosObject: 'Item Receipt',
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/ItemReceipt',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-item-receipts-and-the-item-receipts-list',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. ID field is ignored on create requests.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this item receipt has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The order number for this record. If you wish to use the automatic numbering capability on creation of a item receipt, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'date',
-				type: 'string'
+				description: 'Transaction date.',
+				type: 'timestamp'
 			},
 			{
 				name: 'vendor',
-				type: 'string'
+				description: 'Vendor from which these items were received.',
+				type: 'reference',
+				reference: { field: 'vendorId', property: 'id', sourceTable: 'vendors', sourceField: 'id' }
 			},
 			{
 				name: 'location',
-				type: 'string'
+				description: 'Location where these items were received.',
+				type: 'reference',
+				reference: { field: 'locationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'terms',
-				type: 'string'
+				description: 'Payment terms.',
+				type: 'reference',
+				reference: { field: 'termsId', property: 'id', sourceTable: 'terms', sourceField: 'id' }
 			},
 			{
 				name: 'department',
-				type: 'string'
+				description: 'Department for this transaction.',
+				type: 'reference',
+				reference: { field: 'departmentId', property: 'id', sourceTable: 'departments', sourceField: 'id' }
 			},
 			{
 				name: 'currency',
-				type: 'string'
+				description: 'Currency used for transaction if multicurrency is enabled.',
+				type: 'reference'
 			},
 			{
 				name: 'taxCode',
-				type: 'string'
+				description: 'Tax code for transaction.',
+				type: 'reference',
+				reference: { field: 'taxCodeId', property: 'id', sourceTable: 'taxCodes', sourceField: 'id' }
 			},
 			{
 				name: 'linkedTransaction',
-				type: 'string'
+				description: 'The transaction linked to this item receipt.',
+				type: 'object',
+				objectType: sosObjects.transaction
 			},
 			{
 				name: 'exchangeRate',
+				description: 'The exchange rate used for this transaction, if multicurrency is enabled.',
 				type: 'decimal'
 			},
 			{
 				name: 'vendorMessage',
+				description: 'Vendor message field.',
 				type: 'string'
 			},
 			{
 				name: 'comment',
+				description: 'Comment field about transaction. For in-house use.',
 				type: 'string'
 			},
 			{
 				name: 'vendorNotes',
+				description: 'Vendor notes field. For in-house use.',
 				type: 'string'
 			},
 			{
 				name: 'payment',
+				description: 'Method used to pay for these items. Must be one of "None", "Bill", "CashPurchase", "Check", "CreditCardCharge".',
 				type: 'string'
 			},
 			{
 				name: 'vendorInvoiceDate',
-				type: 'string'
+				description: 'The invoice date provided by the vendor for this receipt, if supplied.',
+				type: 'timestamp'
 			},
 			{
 				name: 'vendorInvoiceDueDate',
-				type: 'string'
+				description: 'The due date of the vendor’s invoice associated with this receipt, if supplied.',
+				type: 'timestamp'
 			},
 			{
 				name: 'customFields',
@@ -2546,67 +2638,251 @@ exports.tables = [
 			},
 			{
 				name: 'depositAmount',
+				description: 'Deposit amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'subTotal',
-				type: 'decimal'
+				description: 'Subtotal for transaction.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'taxAmount',
+				description: 'The total tax amount calculated for this item receipt.',
 				type: 'decimal'
 			},
 			{
 				name: 'total',
-				type: 'decimal'
+				description: 'Transaction total.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'overhead',
+				description: 'Applies a specified percentage of overhead to each item.',
 				type: 'decimal'
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'Indicates if the summary parameter was set when retrieving back this record.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'hasSignature',
-				type: 'integer'
+				description: 'Reserved for future use.',
+				type: 'boolean'
 			},
 			{
 				name: 'updateDefaultCosts',
-				type: 'integer'
+				description: 'When true, SOS will update the item’s default cost based on the costs in this receipt.',
+				type: 'boolean'
 			},
 			{
 				name: 'autoSerialLots',
-				type: 'integer'
+				description: 'Set to true to generate serial or lot numbers automatically when receiving such items.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'lines',
-				type: 'string'
-			},
-			{
-				name: 'vendorId',
-				type: 'integer'
-			},
-			{
-				name: 'locationId',
-				type: 'integer'
-			},
-			{
-				name: 'termsId',
-				type: 'integer'
-			},
-			{
-				name: 'departmentId',
-				type: 'integer'
-			},
-			{
-				name: 'taxCodeId',
-				type: 'integer'
+				description: 'The lines for the item receipt. See object structure below.',
+				type: 'array',
+				sidecar: {
+					table: 'itemReceiptItems',
+					fields: [
+						{
+							name: 'id',
+							description: 'The unique identifier for this estimate line item. ID field is ignored on create requests.',
+							type: 'integer',
+							source: 'object',
+							property: 'id'
+						},
+						{
+							name: 'linenumber',
+							description: 'The line number for this line on the invoice transaction.',
+							type: 'integer',
+							source: 'object',
+							property: 'linenumber'
+						},
+						{
+							name: 'item',
+							description: 'The item this line represents.',
+							type: 'reference',
+							reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' },
+							source: 'object',
+							property: 'item'
+						},
+						{
+							name: 'vendorPartNumber',
+							description: 'The item this line represents.',
+							type: 'string',
+							source: 'object',
+							property: 'vendorPartNumber'
+						},
+						{
+							name: 'class',
+							description: 'The class for this line.',
+							type: 'reference',
+							reference: { field: 'classId', property: 'id', sourceTable: 'classes', sourceField: 'id' },
+							source: 'object',
+							property: 'class'
+						},
+						{
+							name: 'job',
+							description: 'The job for this line, if enabled.',
+							type: 'reference',
+							reference: { field: 'jobId', property: 'id', sourceTable: 'jobs', sourceField: 'id' },
+							source: 'object',
+							property: 'job'
+						},
+						{
+							name: 'workcenter',
+							description: 'The related work center for the job.',
+							type: 'reference',
+							reference: { field: 'workCenterId', property: 'id', sourceTable: 'workCenters', sourceField: 'id' },
+							source: 'object',
+							property: 'workcenter'
+						},
+						{
+							name: 'customer',
+							description: 'The customer this line item is targeted for, if any.',
+							type: 'reference',
+							reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' },
+							source: 'object',
+							property: 'customer'
+						},
+						{
+							name: 'tax',
+							description: 'The tax information for this line, if enabled.',
+							type: 'object',
+							source: 'object',
+							property: 'tax'
+						},
+						{
+							name: 'linkedTransaction',
+							description: 'The transaction linked to this line.',
+							type: 'object',
+							objectType: sosObjects.transaction,
+							source: 'object',
+							property: 'linkedTransaction'
+						},
+						{
+							name: 'description',
+							description: 'The item description.',
+							type: 'string',
+							source: 'object',
+							property: 'description'
+						},
+						{
+							name: 'quantity',
+							description: 'The quantity for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'quantity'
+						},
+						{
+							name: 'weight',
+							description: 'The weight of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'weight',
+							readOnly: true
+						},
+						{
+							name: 'volume',
+							description: 'The volume of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'volume',
+							readOnly: true
+						},
+						{
+							name: 'weightunit',
+							description: 'The unit for the item\'s weight value.',
+							type: 'string',
+							source: 'object',
+							property: 'weightunit',
+							readOnly: true
+						},
+						{
+							name: 'volumeunit',
+							description: 'The unit for the volume value.',
+							type: 'string',
+							source: 'object',
+							property: 'volumeunit',
+							readOnly: true
+						},
+						{
+							name: 'unitprice',
+							description: 'The unit price for this item. Must be above the item’s minimum price, if set.',
+							type: 'decimal',
+							source: 'object',
+							property: 'unitprice'
+						},
+						{
+							name: 'amount',
+							description: 'The sales amount for this line item. The amount must equal the quantity multiplied by the unit price.',
+							type: 'decimal',
+							source: 'object',
+							property: 'amount'
+						},
+						{
+							name: 'received',
+							description: 'The quantity of this line item that was received.',
+							type: 'decimal',
+							source: 'object',
+							property: 'received',
+							readOnly: true
+						},
+						{
+							name: 'uom',
+							description: 'The unit of measure for this line.',
+							type: 'reference',
+							reference: { field: 'unitsOfMeasureId', property: 'id', sourceTable: 'unitsOfMeasure', sourceField: 'id' },
+							source: 'object',
+							property: 'uom'
+						},
+						{
+							name: 'bin',
+							description: 'The bin to which this line item is assigned.',
+							type: 'reference',
+							reference: { field: 'binId', property: 'id', sourceTable: 'bins', sourceField: 'id' },
+							source: 'object',
+							property: 'bin'
+						},
+						{
+							name: 'lot',
+							description: 'The lot to which this line item is assigned.',
+							type: 'reference',
+							reference: { field: 'lotId', property: 'id', sourceTable: 'lots', sourceField: 'id' },
+							source: 'object',
+							property: 'lot'
+						},
+						{
+							name: 'lotExpiration',
+							description: 'The date this lot expires.',
+							type: 'timestamp',
+							source: 'object',
+							property: 'lotExpiration'
+						},
+						{
+							name: 'serials',
+							description: 'The serial number(s) assigned to an item.',
+							type: 'array',
+							source: 'object',
+							property: 'serials'
+						}
+					],
+					primaryKey: ['id']
+				}
 			}
 		],
 		primaryKey: ['id']
