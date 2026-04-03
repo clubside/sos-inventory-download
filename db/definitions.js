@@ -203,8 +203,10 @@ const sosObjects = {
  * @property {String} description - description of the table
  * @property {Boolean} [primary] - whether the table should be grouped as part of SOS Inventory's Primary objects
  * @property {Boolean} [reference] - whether the table should be grouped as part of SOS Inventory's Reference objects
- * @property {Boolean} [support] - whether the table should be grouped as part of SOS Inventory's Support objects
  * @property {SOSAPI} [api] - SOS Inventory API definition
+ * @property {String} [sourceField] - field name to derive support table
+ * @property {String[]} [sourceTables] - table name(s) to derive support table
+ * @property {String} [destinationField] - field name to update
  * @property {String} [sosApiUrl] - link to SOS Inventory API developer page
  * @property {String} [sosHelpUrl] - link to SOS Inventory help page
  * @property {SOSField[]} fields - field definitions for the table
