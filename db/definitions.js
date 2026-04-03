@@ -10962,59 +10962,162 @@ exports.tables = [
 	},
 	{
 		name: 'transfers',
+		sosObject: 'Transfer',
+		description: 'Transfer transactions record the movement of inventory from one location to another.',
+		primary: true,
+		api: {
+			query: {
+				endpoint: '/api/v2/transfer',
+				description: 'Returns a list of transfer objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'summary',
+						description: 'If this parameter is present (the value doesn\'t matter, and doesn\'t need to be specified), only the summary attributes of the shipment will be returned.',
+						type: 'string'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, id, comment, from location name, or to location name.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'from/to',
+						description: 'Returns records based on the beginning and ending transaction dates specified. Both parameters are optional. Using only one parameter allows filtering in one direction. Example: from=2019-09-01T00:00:00&to=2019-09-10T00:00:00',
+						type: 'timestamp'
+					},
+					{
+						name: 'fromLocation',
+						description: 'Filters transfer records according to the name of the originating location.',
+						type: 'string'
+					},
+					{
+						name: 'toLocation',
+						description: 'Filters transfer records according to the name of the destination location.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Transfer',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-transfers',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. ID field is ignored on create requests.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The order number for this record. If you wish to use the automatic numbering capability on creation of a shipment, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'date',
-				type: 'string'
+				description: 'Transaction date.',
+				type: 'timestamp'
 			},
 			{
 				name: 'fromLocation',
-				type: 'string'
+				description: 'Location from which inventory is being transferred.',
+				type: 'reference',
+				reference: { field: 'fromLocationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'toLocation',
-				type: 'string'
+				description: 'Location to which inventory is being transferred.',
+				type: 'reference',
+				reference: { field: 'toLocationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'department',
-				type: 'string'
+				description: 'Department for this transaction.',
+				type: 'reference',
+				reference: { field: 'departmentId', property: 'id', sourceTable: 'departments', sourceField: 'id' }
 			},
 			{
 				name: 'shippingMethod',
-				type: 'string'
+				description: 'Shipping method for this transaction.',
+				type: 'reference',
+				reference: { field: 'shipMethodId', property: 'id', sourceTable: 'shipMethods', sourceField: 'id' }
 			},
 			{
 				name: 'trackingNumber',
+				description: 'Carrier\'s tracking number.',
 				type: 'string'
 			},
 			{
 				name: 'shippingAmount',
+				description: 'Shipping amount field.',
 				type: 'decimal'
 			},
 			{
 				name: 'createBillForShippingAmount',
-				type: 'integer'
+				description: 'If true, the system will create a bill from the vendor associated with the shipping method. Valid only on create and update.',
+				type: 'boolean'
 			},
 			{
 				name: 'comment',
+				description: 'Transaction comment.',
 				type: 'string'
 			},
 			{
@@ -11025,35 +11128,165 @@ exports.tables = [
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'Is the transaction archived?',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'Indicates if the summary parameter was set when retrieving back this record.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'hasSignature',
-				type: 'integer'
+				description: 'Reserved for future use.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'lines',
-				type: 'string'
-			},
-			{
-				name: 'fromLocationId',
-				type: 'integer'
-			},
-			{
-				name: 'toLocationId',
-				type: 'integer'
-			},
-			{
-				name: 'departmentId',
-				type: 'integer'
-			},
-			{
-				name: 'shipMethodId',
-				type: 'integer'
+				description: 'The lines for this transfer.',
+				type: 'array',
+				sidecar: {
+					table: 'transferItems',
+					fields: [
+						{
+							name: 'id',
+							description: 'The unique identifier for this transfer item. ID field is ignored on create requests.',
+							type: 'integer',
+							source: 'object',
+							property: 'id',
+							nulls: false,
+							unique: true
+						},
+						{
+							name: 'lineNumber',
+							description: 'The line number for this line on this transaction.',
+							type: 'integer',
+							source: 'object',
+							property: 'lineNumber'
+						},
+						{
+							name: 'item',
+							description: 'The item this line represents.',
+							type: 'reference',
+							reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' },
+							source: 'object',
+							property: 'item'
+						},
+						{
+							name: 'class',
+							description: 'The class for this line.',
+							type: 'reference',
+							reference: { field: 'classId', property: 'id', sourceTable: 'classes', sourceField: 'id' },
+							source: 'object',
+							property: 'class'
+						},
+						{
+							name: 'job',
+							description: 'The job for this line, if enabled.',
+							type: 'reference',
+							reference: { field: 'jobId', property: 'id', sourceTable: 'jobs', sourceField: 'id' },
+							source: 'object',
+							property: 'job'
+						},
+						{
+							name: 'workcenter',
+							description: 'The related work center for the job.',
+							type: 'reference',
+							reference: { field: 'workCenterId', property: 'id', sourceTable: 'workCenters', sourceField: 'id' },
+							source: 'object',
+							property: 'workcenter'
+						},
+						{
+							name: 'weight',
+							description: 'The weight of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'weight',
+							readOnly: true
+						},
+						{
+							name: 'volume',
+							description: 'The volume of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'volume',
+							readOnly: true
+						},
+						{
+							name: 'weightunit',
+							description: 'The unit for the item\'s weight value.',
+							type: 'string',
+							source: 'object',
+							property: 'weightunit',
+							readOnly: true
+						},
+						{
+							name: 'volumeunit',
+							description: 'The unit for the item\'s volume value.',
+							type: 'string',
+							source: 'object',
+							property: 'volumeunit',
+							readOnly: true
+						},
+						{
+							name: 'lot',
+							description: 'Lot to which this item belongs.',
+							type: 'reference',
+							reference: { field: 'lotId', property: 'id', sourceTable: 'lots', sourceField: 'id' },
+							source: 'object',
+							property: 'lot'
+						},
+						{
+							name: 'fromBin',
+							description: 'Bin from which inventory is being transferred.',
+							type: 'reference',
+							reference: { field: 'fromBinId', property: 'id', sourceTable: 'bins', sourceField: 'id' },
+							source: 'object',
+							property: 'fromBin'
+						},
+						{
+							name: 'toBin',
+							description: 'Bin to which inventory is being transferred.',
+							type: 'reference',
+							reference: { field: 'toBinId', property: 'id', sourceTable: 'bins', sourceField: 'id' },
+							source: 'object',
+							property: 'toBin'
+						},
+						{
+							name: 'description',
+							description: 'The item description.',
+							type: 'string',
+							source: 'object',
+							property: 'description'
+						},
+						{
+							name: 'quantity',
+							description: 'The quantity of this line item.',
+							type: 'decimal',
+							source: 'object',
+							property: 'quantity'
+						},
+						{
+							name: 'uom',
+							description: 'The unit of measure for this line.',
+							type: 'reference',
+							reference: { field: 'unitsOfMeasureId', property: 'id', sourceTable: 'unitsOfMeasure', sourceField: 'id' },
+							source: 'object',
+							property: 'uom'
+						},
+						{
+							name: 'serials',
+							description: 'The serial numbers used for this item process.',
+							type: 'array',
+							source: 'object',
+							property: 'serials'
+						}
+					],
+					primaryKey: ['id']
+				}
 			}
 		],
 		primaryKey: ['id']
