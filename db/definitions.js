@@ -7779,7 +7779,7 @@ exports.tables = [
 		name: 'returnsToVendor',
 		sosObject: 'Return To Vendor',
 		description: 'A return to vendor, or RTV, is a transaction in which goods are returned due to an erroneous shipment or damage during delivery.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/returntovendor',
