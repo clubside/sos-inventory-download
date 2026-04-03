@@ -330,7 +330,7 @@ exports.tables = [
 		name: 'adjustments',
 		sosObject: 'Adjustment',
 		description: 'Inventory adjustments allow you to modify the quantity and/or cost basis of inventory on hand. You should use inventory adjustments sparingly, as most often inventory will be added or removed through item receipts and shipments.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/adjustment',
@@ -756,7 +756,7 @@ exports.tables = [
 		name: 'builds',
 		sosObject: 'Build',
 		description: 'A build transaction uses raw materials to assemble a finished good. This transaction results in a decrease in the inventory of the raw materials and an increase in the inventory of the assembled item.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/build',
@@ -1488,7 +1488,7 @@ exports.tables = [
 		name: 'customers',
 		sosObject: 'Customer',
 		description: 'Represents a customer record used for sales, billing, shipping, pricing, tax configuration, and QuickBooks synchronization. Includes contact information, addresses, payment terms, pricing tier, tax settings, custom fields, and optional QuickBooks metadata such as sync status and stored payment token details.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/customer',
@@ -1988,7 +1988,7 @@ exports.tables = [
 		name: 'estimates',
 		sosObject: 'Estimate',
 		description: 'An estimate is a quotation to a customer, or an offer to provide products or services at a specified price. The terms of an estimate (binding, non-binding, etc.) are set by your company policies.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/estimate',
@@ -2478,7 +2478,7 @@ exports.tables = [
 		name: 'invoices',
 		sosObject: 'Invoice',
 		description: 'An invoice is a bill to a customer requesting that they pay you a certain amount of money by a certain date.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/invoice',
@@ -2995,7 +2995,7 @@ exports.tables = [
 		name: 'itemReceipts',
 		sosObject: 'Item Receipt',
 		description: 'Items are received into inventory by creating item receipts.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/itemreceipt',
@@ -3431,7 +3431,7 @@ exports.tables = [
 		name: 'items',
 		sosObject: 'Item',
 		description: 'Items are the most important pieces of data in SOS Inventory. They drive everything else in the system. Items can represent almost anything—they do not have to be things stored in inventory. An item is simply something you want to track in SOS Inventory. Examples include a product you sell, a service you provide, raw materials you use in manufacturing, and your overhead expenses.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/item',
@@ -4085,7 +4085,7 @@ exports.tables = [
 		name: 'jobs',
 		sosObject: 'Job',
 		description: 'Jobs, available on the Pro Plan of SOS Inventory, provide a convenient way to organize groups of transactions. Each job--and even each stage of a job--can have its own profit-and-loss statement, showing precisely how much money was made or lost on a given set',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/job',
@@ -4388,7 +4388,7 @@ exports.tables = [
 		name: 'lots',
 		sosObject: 'Lot',
 		description: 'Lot tracking is used to track batches or groups of a specific item.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/lot',
@@ -4702,7 +4702,7 @@ exports.tables = [
 	{
 		name: 'pickTickets',
 		description: 'A pick ticket gives instructions to your warehouse to pull certain items, quantities, serial numbers, lot numbers, etc. Pick tickets do NOT remove items from inventory.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/pickticket',
@@ -5213,7 +5213,7 @@ exports.tables = [
 		name: 'processes',
 		sosObject: 'Process',
 		description: 'Processes in SOS Inventory can have an unlimited number of inputs and outputs. This gives you the flexibility to handle not only simple manufacturing (multiple inputs into one output) but also disassembly (where one input produces many outputs) and processes with by-products (multiple inputs into multiple outputs).',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/process',
@@ -5766,7 +5766,7 @@ exports.tables = [
 		name: 'purchaseOrders',
 		sosObject: 'Purchase Order',
 		description: 'A purchase order is a document requesting that a vendor provide a good or service in exchange for payment.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/purchaseorder',
@@ -6252,7 +6252,7 @@ exports.tables = [
 		name: 'rentalReturns',
 		sosObject: 'Rental Return',
 		description: 'Rental return transactions record the return of items previously rented by a customer and documented using a rental transaction.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/rentalreturn',
@@ -6719,7 +6719,7 @@ exports.tables = [
 		name: 'rentals',
 		sosObject: 'Rental',
 		description: 'Rental transactions record the renting of an inventory item by a customer.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/rental',
@@ -7301,7 +7301,7 @@ exports.tables = [
 		name: 'returns',
 		sosObject: 'Return',
 		description: 'A return transaction is to an RMA what an item receipt is to a PO. It is a record that you actually received the goods from a customer.',
-		primary: true,
+		primary: false,
 		api: {
 			query: {
 				endpoint: '/api/v2/return',
