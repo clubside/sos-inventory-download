@@ -9969,86 +9969,176 @@ exports.tables = [
 	},
 	{
 		name: 'serialNumbers',
+		sosObject: 'Serial Number',
+		description: 'Serialized inventory allows you to track individual units of an item, rather than quantities only. A serial number is assigned to each unit, and the number stays with the unit as it goes through the system.',
+		primary: true,
+		api: {
+			query: {
+				endpoint: '/api/v2/serial',
+				description: 'Returns a list of serial objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, description, or item name.',
+						type: 'string'
+					},
+					{
+						name: 'location',
+						description: 'The name of a location to filter the items.',
+						type: 'string'
+					},
+					{
+						name: 'itemId',
+						description: 'The id of the item to filter the items.',
+						type: 'integer'
+					},
+					{
+						name: 'status',
+						description: 'Filters results by whether the transaction is open or closed.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/SerialNumber',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-serial-inventory',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. Must not be provided on create transactions.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this transaction has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The serial identification number.',
 				type: 'string'
 			},
 			{
 				name: 'item',
-				type: 'string'
+				description: 'The item associated with this serial number.',
+				type: 'reference',
+				reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' }
 			},
 			{
 				name: 'location',
-				type: 'string'
+				description: 'The location for this serial number.',
+				type: 'reference',
+				reference: { field: 'locationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'customer',
-				type: 'string'
+				description: 'The customer associated with this serial number.',
+				type: 'reference',
+				reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' }
 			},
 			{
 				name: 'warranty',
-				type: 'string'
+				description: 'Self-explanatory.',
+				type: 'reference',
+				reference: { field: 'warrantyId', property: 'id', sourceTable: 'warranties', sourceField: 'id' }
 			},
 			{
 				name: 'description',
+				description: 'Default description for this serial number.',
 				type: 'string'
 			},
 			{
 				name: 'status',
+				description: 'The status of this serial number: "In Stock", "Used", "Shipped", or "Adjusted Out".',
 				type: 'string'
 			},
 			{
 				name: 'cost',
-				type: 'decimal'
+				description: 'Cost of this serialized item.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'net',
-				type: 'decimal'
+				description: 'Net cost of this serialized item.',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'hasImage',
-				type: 'integer'
+				description: 'True if a product image is available for this serialized item. False, if not.',
+				type: 'boolean'
+			},
+			{
+				name: 'summaryOnly',
+				description: '',
+				type: 'boolean'
 			},
 			{
 				name: 'imageAsBase64String',
+				description: 'Binary image of this item, encoded as a Base64 string.',
 				type: 'string'
 			},
 			{
 				name: 'imageChanged',
-				type: 'integer'
+				description: 'True if a new item image is being sent with this create or update transaction. False, if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'customFields',
 				description: 'The list of custom fields for this object type.',
 				type: 'array',
 				objectType: sosObjects.customField
-			},
-			{
-				name: 'itemId',
-				type: 'integer'
-			},
-			{
-				name: 'locationId',
-				type: 'integer'
-			},
-			{
-				name: 'customerId',
-				type: 'integer'
 			}
 		],
 		primaryKey: ['id']
