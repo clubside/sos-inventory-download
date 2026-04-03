@@ -7777,63 +7777,164 @@ exports.tables = [
 	},
 	{
 		name: 'returnsToVendor',
+		sosObject: 'Return To Vendor',
+		description: 'A return to vendor, or RTV, is a transaction in which goods are returned due to an erroneous shipment or damage during delivery.',
+		primary: true,
+		api: {
+			query: {
+				endpoint: '/api/v2/returntovendor',
+				description: 'Returns a list of return to vendor objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'status',
+						description: 'Filters results by whether the transaction is open or closed.',
+						type: 'string'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: number, id, comment, vendor name, or location name.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'location',
+						description: 'Filters transactions according to the name of the location.',
+						type: 'string'
+					},
+					{
+						name: 'from/to',
+						description: 'Returns records based on the beginning and ending transaction dates specified. Both parameters are optional. Using only one parameter allows filtering in one direction. Example: from=2019-09-01T00:00:00&to=2019-09-10T00:00:00',
+						type: 'timestamp'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/ReturnToVendor',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-returns-to-vendors-rtvs',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. ID field is ignored on create requests.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this item receipt has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be one color of star or three colors of stars. See Company Settings in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'number',
+				description: 'The order number for this record. If you wish to use the automatic numbering capability on creation of a item receipt, pass the string “auto”.',
 				type: 'string'
 			},
 			{
 				name: 'date',
-				type: 'string'
+				description: 'Transaction date.',
+				type: 'timestamp'
 			},
 			{
 				name: 'vendor',
-				type: 'string'
+				description: 'Vendor from which these items were received.',
+				type: 'reference',
+				reference: { field: 'vendorId', property: 'id', sourceTable: 'vanedors', sourceField: 'id' }
 			},
 			{
 				name: 'location',
-				type: 'string'
+				description: 'Location where these items were stored.',
+				type: 'reference',
+				reference: { field: 'locationId', property: 'id', sourceTable: 'locations', sourceField: 'id' }
 			},
 			{
 				name: 'account',
-				type: 'string'
+				description: 'Account to which the transaction amount should be debited.',
+				type: 'reference',
+				reference: { field: 'accountId', property: 'id', sourceTable: 'accounts', sourceField: 'id' }
 			},
 			{
 				name: 'department',
-				type: 'string'
+				description: 'Department for this transaction.',
+				type: 'reference',
+				reference: { field: 'departmentId', property: 'id', sourceTable: 'departmets', sourceField: 'id' }
 			},
 			{
 				name: 'shippingMethod',
-				type: 'string'
+				description: 'Shipping method for transaction.',
+				type: 'reference',
+				reference: { field: 'shipMethodId', property: 'id', sourceTable: 'shipMethods', sourceField: 'id' }
 			},
 			{
 				name: 'trackingNumber',
+				description: 'The carrier\'s tracking number for this RTV.',
 				type: 'string'
 			},
 			{
 				name: 'linkedTransaction',
-				type: 'string'
+				description: 'The transaction linked to this RTV.',
+				type: 'object',
+				objectType: sosObjects.transaction
 			},
 			{
 				name: 'comment',
+				description: 'The company’s internal comment about this transaction. This comment is not visible to the vendor.',
 				type: 'string'
 			},
 			{
 				name: 'vendorNotes',
+				description: 'Field for internal notes about vendor.',
 				type: 'string'
 			},
 			{
@@ -7844,43 +7945,228 @@ exports.tables = [
 			},
 			{
 				name: 'total',
-				type: 'decimal'
+				description: 'Transaction total',
+				type: 'decimal',
+				readOnly: true
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'Indicates if the summary parameter was set when retrieving back this record',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'hasSignature',
-				type: 'integer'
+				description: 'Reserved for future use.',
+				type: 'boolean',
+				readOnly: true
+			},
+			{
+				name: 'createVendorCredit',
+				description: 'Send a vendor credit to accounting software?',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'lines',
-				type: 'string'
-			},
-			{
-				name: 'vendorId',
-				type: 'integer'
-			},
-			{
-				name: 'locationId',
-				type: 'integer'
-			},
-			{
-				name: 'accountId',
-				type: 'integer'
-			},
-			{
-				name: 'departmentId',
-				type: 'integer'
-			},
-			{
-				name: 'shippingMethodId',
-				type: 'integer'
+				description: 'The lines for this RTV. See object structure below.',
+				type: 'array',
+				sidecar: {
+					table: 'returnToVendorItems',
+					fields: [
+						{
+							name: 'id',
+							description: 'The unique identifier for this RTV item. ID field is ignored on create requests.',
+							type: 'integer',
+							source: 'object',
+							property: 'id',
+							nulls: false,
+							unique: true
+						},
+						{
+							name: 'lineNumber',
+							description: 'The line number for this line on the RTV transaction.',
+							type: 'integer',
+							source: 'object',
+							property: 'lineNumber'
+						},
+						{
+							name: 'item',
+							description: 'The item this line represents.',
+							type: 'reference',
+							reference: { field: 'itemId', property: 'id', sourceTable: 'items', sourceField: 'id' },
+							source: 'object',
+							property: 'item'
+						},
+						{
+							name: 'vendorPartNumber',
+							description: 'Self-explanatory.',
+							type: 'string',
+							source: 'object',
+							property: 'vendorPartNumber'
+						},
+						{
+							name: 'class',
+							description: 'The class for this line.',
+							type: 'reference',
+							reference: { field: 'classId', property: 'id', sourceTable: 'classes', sourceField: 'id' },
+							source: 'object',
+							property: 'class'
+						},
+						{
+							name: 'job',
+							description: 'The job for this line, if enabled.',
+							type: 'reference',
+							reference: { field: 'jobId', property: 'id', sourceTable: 'jobs', sourceField: 'id' },
+							source: 'object',
+							property: 'job'
+						},
+						{
+							name: 'workcenter',
+							description: 'The related work center for the job.',
+							type: 'reference',
+							reference: { field: 'workCenterId', property: 'id', sourceTable: 'workCenters', sourceField: 'id' },
+							source: 'object',
+							property: 'workcenter'
+						},
+						{
+							name: 'customer',
+							description: 'The customer this line item is targeted for, if any.',
+							type: 'reference',
+							reference: { field: 'customerId', property: 'id', sourceTable: 'customers', sourceField: 'id' },
+							source: 'object',
+							property: 'customer'
+						},
+						{
+							name: 'tax',
+							description: 'The tax information for this line, if enabled.',
+							type: 'object',
+							objectTypes: sosObjects.taxInformation,
+							source: 'object',
+							property: 'tax'
+						},
+						{
+							name: 'linkedTransaction',
+							description: 'The transaction linked to this line.',
+							type: 'object',
+							objectTypes: sosObjects.transaction,
+							source: 'object',
+							property: 'linkedTransaction'
+						},
+						{
+							name: 'description',
+							description: 'The item description.',
+							type: 'string',
+							source: 'object',
+							property: 'description'
+						},
+						{
+							name: 'quantity',
+							description: 'The quantity for this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'quantity'
+						},
+						{
+							name: 'weight',
+							description: 'The weight of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'weight',
+							readOnly: true
+						},
+						{
+							name: 'volume',
+							description: 'The volume of this line.',
+							type: 'decimal',
+							source: 'object',
+							property: 'volume',
+							readOnly: true
+						},
+						{
+							name: 'weightunit',
+							description: 'The unit for the item\'s weight value.',
+							type: 'string',
+							source: 'object',
+							property: 'weightunit',
+							readOnly: true
+						},
+						{
+							name: 'volumeunit',
+							description: 'The unit for the volume value.',
+							type: 'string',
+							source: 'object',
+							property: 'volumeunit',
+							readOnly: true
+						},
+						{
+							name: 'unitPrice',
+							description: 'The per-unit purchase cost for the item.',
+							type: 'decimal',
+							source: 'object',
+							property: 'unitPrice'
+						},
+						{
+							name: 'amount',
+							description: 'The rental amount for this line. The amount must equal the quantity multiplied by the unit price.',
+							type: 'decimal',
+							source: 'object',
+							property: 'amount'
+						},
+						{
+							name: 'received',
+							description: 'The quantity of this line item that was received.',
+							type: 'decimal',
+							source: 'object',
+							property: 'received'
+						},
+						{
+							name: 'uom',
+							description: 'The unit of measure for this line.',
+							type: 'reference',
+							reference: { field: 'unitsOfMeasureId', property: 'id', sourceTable: 'unitsOfMeasure', sourceField: 'id' },
+							source: 'object',
+							property: 'uom'
+						},
+						{
+							name: 'bin',
+							description: 'Bin from which this item was shipped.',
+							type: 'reference',
+							reference: { field: 'binId', property: 'id', sourceTable: 'bins', sourceField: 'id' },
+							source: 'object',
+							property: 'bin'
+						},
+						{
+							name: 'lot',
+							description: 'The lot used for this item process.',
+							type: 'reference',
+							reference: { field: 'lotId', property: 'id', sourceTable: 'lots', sourceField: 'id' },
+							source: 'object',
+							property: 'lot'
+						},
+						{
+							name: 'lotExpiration',
+							description: 'Unused.',
+							type: 'timestamp',
+							source: 'object',
+							property: 'lotExpiration'
+						},
+						{
+							name: 'serials',
+							description: 'Unused.',
+							type: 'array',
+							source: 'object',
+							property: 'serials'
+						}
+					],
+					primaryKey: ['id']
+				}
 			}
 		],
 		primaryKey: ['id']
