@@ -3,7 +3,7 @@
 const openDb = require('./db/database.js')
 const createTable = require('./db/create-table.js')
 const insertRow = require('./db/insert-row.js')
-const { tables } = require('./db/definitions.js')
+const { tables, supportTables } = require('./db/definitions.js')
 
 function formatRuntime(ms) {
 	const totalSeconds = Math.floor(ms / 1000)
@@ -103,58 +103,82 @@ async function downloadTable(params, engine, table) {
 	await engine.commit()
 	return { ok: true }
 }
-/*
-async function handleCategories(engine, table) {
-	// 1. Create the categories table
+
+async function handleSupportTable(engine, table) {
 	await createTable(engine, table)
 
-	// 2. Extract distinct category JSON strings from items
-	const rows = await engine.query(
-		'SELECT DISTINCT category FROM items WHERE category IS NOT NULL',
-		[],
-		true
-	)
+	const supportMap = new Map()
 
-	// 3. Insert each category into the categories table
-	for (const row of rows) {
-		let categoryObj
-		try {
-			categoryObj = JSON.parse(row.category)
-		} catch (err) {
-			console.error('Invalid category JSON:', row.category)
-			continue
+	// 1. Extract distinct JSON objects from all source tables
+	for (const sourceTable of table.sourceTables) {
+		const rows = await engine.query(
+            `SELECT DISTINCT ${table.sourceField} FROM ${sourceTable} WHERE ${table.sourceField} IS NOT NULL`,
+            [],
+            true
+		)
+
+		for (const row of rows) {
+			let obj
+			try {
+				obj = JSON.parse(row[table.sourceField])
+			} catch (err) {
+				console.error(`Invalid JSON in ${table.name}:`, row[table.sourceField])
+				continue
+			}
+
+			if (!obj || typeof obj !== 'object') continue
+
+			// Use ID if present, otherwise fallback to name
+			const key = obj.id ?? obj.value ?? obj.code ?? obj.name
+			if (!key) continue
+
+			if (!supportMap.has(key)) {
+				supportMap.set(key, {
+					id: obj.id ?? obj.value ?? obj.code,
+					name: obj.name ?? obj.code ?? obj.value
+				})
+			}
 		}
-
-		await insertRow(engine, table, categoryObj)
 	}
 
-	// 4. Now update items with categoryId
-	const items = await engine.query(
-		'SELECT id, category FROM items WHERE category IS NOT NULL',
-		[],
-		true
-	)
+	// 2. Insert support table rows
+	for (const value of supportMap.values()) {
+		await insertRow(engine, table, value)
+	}
 
-	for (const item of items) {
-		let categoryObj
-		try {
-			categoryObj = JSON.parse(item.category)
-		} catch (err) {
-			console.error('Invalid category JSON:', item.category)
-			continue
-		}
-
-		// Update items table: set categoryId = categoryObj.id
-		await engine.update(
-			'items',
-			{ categoryId: categoryObj.id },
-			{ id: item.id }
+	// 3. Update source tables with reference ID
+	for (const sourceTable of table.sourceTables) {
+		const rows = await engine.query(
+            `SELECT id, ${table.sourceField} FROM ${sourceTable} WHERE ${table.sourceField} IS NOT NULL`,
+            [],
+            true
 		)
+
+		for (const row of rows) {
+			let obj
+			try {
+				obj = JSON.parse(row[table.sourceField])
+			} catch {
+				continue
+			}
+
+			const refId = obj.id ?? obj.value ?? obj.code
+			if (!refId) continue
+
+			const values = {}
+			values[table.destinationField] = refId
+
+			await engine.update(
+				sourceTable,
+				values,
+				{ id: row.id }
+			)
+		}
 	}
 
 	return { ok: true }
 }
-
+/*
 async function handleItemBoms(params, engine, table) {
 	await createTable(engine, table)
 
@@ -240,40 +264,34 @@ async function downloadSOS(params) {
 			}
 		}
 	}
-	/*
+
 	// PASS 3 — support tables
-	const supportTables = tables.filter(table => table.support === true)
 	for (const table of supportTables) {
-		switch (table.name) {
-			case 'categories': {
-				const catResult = await handleCategories(engine, table)
-				if (!catResult.ok) {
-				     if (engine.close) await engine.close()
-					return {
-						ok: false,
-						message: 'handleCategories failed',
-						error: catResult.error || new Error('Unknown category handler error'),
-						extra: { table: table.name, result: catResult }
-					}
+		if (table.name === 'itemBoms') {
+			/* const bomResult = await handleItemBoms(params, engine, table)
+			if (!bomResult.ok) {
+				if (engine.close) await engine.close()
+				return {
+					ok: false,
+					message: 'handleItemBoms failed',
+					error: bomResult.error || new Error('Unknown item BOM handler error'),
+					extra: { table: table.name, result: bomResult }
 				}
-				break
-			}
-			case 'itemBoms': {
-				const bomResult = await handleItemBoms(params, engine, table)
-				if (!bomResult.ok) {
-					if (engine.close) await engine.close()
-					return {
-						ok: false,
-						message: 'handleItemBoms failed',
-						error: bomResult.error || new Error('Unknown item BOM handler error'),
-						extra: { table: table.name, result: bomResult }
-					}
+			} */
+		} else {
+			const refResult = await handleSupportTable(engine, table)
+			if (!refResult.ok) {
+				if (engine.close) await engine.close()
+				return {
+					ok: false,
+					message: 'handleSupportTable failed',
+					error: refResult.error || new Error('Unknown support table handler error'),
+					extra: { table: table.name, result: refResult }
 				}
-				break
 			}
 		}
 	}
-	*/
+
 	if (engine.close) await engine.close()
 
 	const runtime = formatRuntime(Date.now() - start)
