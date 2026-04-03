@@ -11476,100 +11476,200 @@ exports.tables = [
 	},
 	{
 		name: 'vendors',
+		sosObject: 'Vendor',
+		description: '',
+		primary: true,
+		api: {
+			query: {
+				endpoint: '/api/v2/vendor',
+				description: 'Returns a list of vendor objects.',
+				method: 'GET',
+				results: [
+					{
+						name: 'count',
+						description: 'The number of results returned in this query.',
+						type: 'integer'
+					},
+					{
+						name: 'totalCount',
+						description: 'The total number of records that match the filters of this query.',
+						type: 'integer'
+					},
+					{
+						name: 'data',
+						description: 'An array of invoice objects.',
+						type: 'array'
+					},
+					{
+						name: 'status',
+						description: 'The status of the query. Will be “ok” if successful, otherwise this matches with the message field to indicate why the call failed.',
+						type: 'string'
+					},
+					{
+						name: 'message',
+						description: 'A descriptive message indicating why the query was unsuccessful.',
+						type: 'string'
+					}
+				],
+				arguments: [
+					{
+						name: 'start',
+						description: 'A cursor used in pagination. This is the row number of the full set of results. The API limits results to a max of 200 results per call. If you want to retrieve the next set of results you can use this parameter to retrive the next set of results. For example if you are retrieving 200 results at a time, you can set start=201 to retrieve the next page of results.',
+						type: 'integer'
+					},
+					{
+						name: 'maxresults',
+						description: 'The maximum number of results you want to return. The default is 200, the maximum value allowed.',
+						type: 'integer'
+					},
+					{
+						name: 'summary',
+						description: 'If this parameter is present (the value doesn\'t matter, and doesn\'t need to be specified), only the summary attributes of the shipment will be returned.',
+						type: 'string'
+					},
+					{
+						name: 'query',
+						description: 'This parameter will filter the results by matches of the string on the following fields: name or notes.',
+						type: 'string'
+					},
+					{
+						name: 'archived',
+						description: 'A "yes" returns archived records only; a "no" returns only those that have not been archived.',
+						type: 'string'
+					},
+					{
+						name: 'createdsince/updatedsince',
+						description: 'Filters transactions created or updated since a specified date/time.',
+						type: 'timestamp'
+					}
+				]
+			}
+		},
+		sosApiUrl: 'https://developer.sosinventory.com/apidoc/Vendor',
+		sosHelpUrl: 'https://help.sosinventory.com/v8-vendors-and-the-vendors-list',
 		fields: [
 			{
 				name: 'id',
+				description: 'Unique identifier for this record. Must not be provided when creating a customer.',
 				type: 'integer',
 				nulls: false,
 				unique: true
 			},
 			{
 				name: 'starred',
+				description: 'Indicates if this vendor has been starred. A value of 0 = no star; 1 or 1-3 = starred. Star colors depend on application configuration. This could be 1 color of star or 3 colors of star. See company setting in the user guide for more details.',
 				type: 'integer'
 			},
 			{
 				name: 'syncToken',
+				description: 'Indicates the current version of this record. If you receive an error when updating a record, it is because your syncToken is for an older version of the record than that which is currently in the database. Please GET the latest version prior to updating.',
 				type: 'integer'
 			},
 			{
 				name: 'name',
+				description: 'The name by which you look up this vendor.',
 				type: 'string'
 			},
 			{
 				name: 'email',
+				description: 'Vendor email address.',
 				type: 'string'
 			},
 			{
 				name: 'website',
+				description: 'Include the entire address, like "http://www.acompany.com".',
 				type: 'string'
 			},
 			{
 				name: 'phone',
+				description: 'Self-explanatory. No format is enforced.',
 				type: 'string'
 			},
 			{
 				name: 'mobile',
+				description: 'Self-explanatory. No format is enforced.',
 				type: 'string'
 			},
 			{
 				name: 'altPhone',
+				description: 'Self-explanatory. No format is enforced.',
 				type: 'string'
 			},
 			{
 				name: 'fax',
+				description: 'Self-explanatory. No format is enforced.',
 				type: 'string'
 			},
 			{
 				name: 'companyName',
+				description: 'Self-explanatory.',
 				type: 'string'
 			},
 			{
 				name: 'contact',
-				type: 'string'
+				description: 'The person to contact regarding this vendor.',
+				type: 'object',
+				objectType: sosObjects.contact
 			},
 			{
 				name: 'address',
-				type: 'string'
+				description: 'The vendor\'s billing address.',
+				type: 'object',
+				objectType: sosObjects.address
 			},
 			{
 				name: 'terms',
-				type: 'string'
+				description: 'Payment terms.',
+				type: 'reference',
+				reference: { field: 'termsId', property: 'id', sourceTable: 'terms', sourceField: 'id' }
 			},
 			{
 				name: 'accountNumber',
+				description: 'Self-explanatory.',
 				type: 'string'
 			},
 			{
 				name: 'currency',
-				type: 'string'
+				description: 'Currency used for vendor, if multicurrency is enabled.',
+				type: 'reference'
 			},
 			{
 				name: 'taxCode',
-				type: 'string'
+				description: 'Tax type for this vendor.',
+				type: 'reference',
+				reference: { field: 'taxCodeId', property: 'id', sourceTable: 'taxCodes', sourceField: 'id' }
 			},
 			{
 				name: 'showOnForms',
-				type: 'integer'
+				description: 'True if vendor appears in dropdown lists on purchasing forms. False, if not.',
+				type: 'boolean'
 			},
 			{
 				name: 'notes',
+				description: 'The company’s internal notes about this vendor. These notes are not visible to the vendor.”',
 				type: 'string'
 			},
 			{
 				name: 'archived',
-				type: 'integer'
+				description: 'True if item is archived, false if not.',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'summaryOnly',
-				type: 'integer'
+				description: 'Indicates if the summary parameter was set when retrieving back this record',
+				type: 'boolean',
+				readOnly: true
 			},
 			{
 				name: 'syncMessage',
+				description: 'The sync error message if the last sync attempt failed with Quickbooks. This will be empty if synchronization is successful.',
 				type: 'string'
 			},
 			{
 				name: 'lastSync',
-				type: 'string'
+				description: 'The last successful sync time (GMT) for this vendor, if syncronizing with Quickbooks.',
+				type: 'timestamp'
 			},
 			{
 				name: 'customFields',
@@ -11579,15 +11679,8 @@ exports.tables = [
 			},
 			{
 				name: 'altAddresses',
-				type: 'string'
-			},
-			{
-				name: 'termsId',
-				type: 'integer'
-			},
-			{
-				name: 'taxCodeId',
-				type: 'integer'
+				description: 'See the address field for address format.',
+				type: 'array'
 			}
 		],
 		primaryKey: ['id']
