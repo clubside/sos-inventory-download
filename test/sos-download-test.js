@@ -48,7 +48,7 @@ const testDatabases = {
 
 async function run() {
 	const result = await downloadSOS({
-		database: testDatabases.mariadb,
+		database: testDatabases.postgres,
 		sosAuthorization: process.env.SOS_AUTH,
 		retries: 5
 	})
