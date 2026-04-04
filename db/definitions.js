@@ -12381,7 +12381,7 @@ exports.supportTables = [
 			{
 				name: 'quantity',
 				description: 'The quantity of this item on the BOM.',
-				type: 'integer'
+				type: 'decimal'
 			},
 			{
 				name: 'cost',
