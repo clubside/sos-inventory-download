@@ -45,7 +45,7 @@ module.exports = function createSqlServerEngine(config) {
 			const keys = Object.keys(row)
 			const cols = keys.map(k => this.q(k)).join(', ')
 			const placeholders = keys.map((_, i) => `@p${i}`).join(', ')
-			const req = request || pool.request()
+			const req = pool.request()
 			keys.forEach((k, i) => req.input(`p${i}`, row[k]))
 			await req.query(`INSERT INTO ${this.q(table)} (${cols}) VALUES (${placeholders})`)
 		},
