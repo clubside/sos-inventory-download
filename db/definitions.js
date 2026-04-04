@@ -3885,7 +3885,7 @@ exports.tables = [
 			{
 				name: 'imageAsBase64String',
 				description: 'Binary image of this item, encoded as a Base64 string. This is only populated on a Read call, not on Query calls.',
-				type: 'string'
+				type: 'longstring'
 			},
 			{
 				name: 'imageChanged',
@@ -9988,7 +9988,7 @@ exports.tables = [
 			{
 				name: 'imageAsBase64String',
 				description: 'Binary image of this item, encoded as a Base64 string.',
-				type: 'string'
+				type: 'longstring'
 			},
 			{
 				name: 'imageChanged',
