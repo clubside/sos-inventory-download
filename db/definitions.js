@@ -12411,7 +12411,7 @@ exports.supportTables = [
 				readOnly: true
 			},
 			{
-				name: 'weightunit',
+				name: 'weightUnit',
 				description: 'The unit for the weight value.',
 				type: 'string',
 				readOnly: true
@@ -12429,7 +12429,7 @@ exports.supportTables = [
 				readOnly: true
 			},
 			{
-				name: 'volumeunit',
+				name: 'volumeUnit',
 				description: 'The unit for the volume value.',
 				type: 'string',
 				readOnly: true
