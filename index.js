@@ -112,7 +112,7 @@ async function handleSupportTable(engine, table) {
 	// 1. Extract distinct JSON objects from all source tables
 	for (const sourceTable of table.sourceTables) {
 		const rows = await engine.query(
-            `SELECT DISTINCT ${table.sourceField} FROM ${sourceTable} WHERE ${table.sourceField} IS NOT NULL`,
+            `SELECT DISTINCT ${engine.q(table.sourceField)} FROM ${engine.q(sourceTable)} WHERE ${engine.q(table.sourceField)} IS NOT NULL`,
             [],
             true
 		)
@@ -120,7 +120,8 @@ async function handleSupportTable(engine, table) {
 		for (const row of rows) {
 			let obj
 			try {
-				obj = JSON.parse(row[table.sourceField])
+				obj = row[table.sourceField]
+				if (typeof obj !== 'object') obj = JSON.parse(obj)
 			} catch (err) {
 				console.error(`Invalid JSON in ${table.name}:`, row[table.sourceField])
 				continue
@@ -149,7 +150,7 @@ async function handleSupportTable(engine, table) {
 	// 3. Update source tables with reference ID
 	for (const sourceTable of table.sourceTables) {
 		const rows = await engine.query(
-            `SELECT id, ${table.sourceField} FROM ${sourceTable} WHERE ${table.sourceField} IS NOT NULL`,
+            `SELECT ${engine.q('id')}, ${engine.q(table.sourceField)} FROM ${engine.q(sourceTable)} WHERE ${engine.q(table.sourceField)} IS NOT NULL`,
             [],
             true
 		)
@@ -169,7 +170,7 @@ async function handleSupportTable(engine, table) {
 			values[table.destinationField] = refId
 
 			await engine.update(
-				sourceTable,
+				sourceTable.name,
 				values,
 				{ id: row.id }
 			)
