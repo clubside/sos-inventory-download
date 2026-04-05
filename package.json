@@ -3,18 +3,24 @@
   "version": "1.0.0",
   "description": "A schema‑driven relational database model for SOS Inventory, including full API contract definitions and ingestion support for SQLite, PostgreSQL, MariaDB, MySQL, and SQL Server.",
   "type": "commonjs",
+
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
   },
+
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+
   "scripts": {
     "build": "node build.js",
     "test": "node test/sos-download-test.js"
   },
+
   "keywords": [
     "sos-inventory",
     "sos inventory",
