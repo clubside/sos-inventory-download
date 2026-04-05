@@ -15,7 +15,7 @@ async function build() {
 		entryPoints: ['index.js'],
 		outfile: 'dist/index.cjs',
 		format: 'cjs',
-		bundle: false,
+		bundle: true,
 		platform: 'node'
 	})
 
@@ -24,7 +24,7 @@ async function build() {
 		entryPoints: ['index.js'],
 		outfile: 'dist/index.mjs',
 		format: 'esm',
-		bundle: false,
+		bundle: true,
 		platform: 'node'
 	})
 }
